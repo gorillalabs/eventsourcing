@@ -56,7 +56,7 @@
     r))
 
 (defn enrich-partition
-  "Enrichtes partitions of events."
+  "Enriches partitions of events."
   [versions]
   (fn [r [uid events]]
     (if-let [version (get versions uid)]

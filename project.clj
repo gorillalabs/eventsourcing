@@ -1,4 +1,4 @@
-(defproject eventsourcing "0.1.0-SNAPSHOT"
+(defproject gorillalabs/eventsourcing "0.1.0-SNAPSHOT"
   :description "A Clojure event-sourcing abstraction on configurable storage backends."
   :url "https://github.com/gorillalabs/eventsourcing"
   :license {:name "Eclipse Public License"
@@ -13,8 +13,11 @@
                  [ch.qos.logback/logback-core "1.1.5"]
                  [ch.qos.logback/logback-classic "1.1.5"]
 
-                 ;; mongo
+                 ;; MongoDB support
                  [congomongo "0.4.8"]
+
+                 ;; Cassandra support
+                 [clojurewerkz/cassaforte "2.0.0"]
 
                  ;; testing
                  [juxt/iota "0.2.2"]
