@@ -29,7 +29,6 @@
                log4j
                commons-logging/commons-logging]
 
-
   :profiles {:dev {:plugins [[jonase/eastwood "0.2.3" :exclusions [org.clojure/clojure]]
                              [lein-ancient "0.6.10" :exclusions [org.clojure/clojure]]
                              [lein-pprint "1.1.1" :exclusions [org.clojure/clojure]]
@@ -42,6 +41,4 @@
                   ["deploy"]
                   ["change" "version" "leiningen.release/bump-version"]
                   ["vcs" "commit"]
-                  ["vcs" "push"]]
-
-  )
+                  ["vcs" "push"]])
