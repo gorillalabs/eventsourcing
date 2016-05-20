@@ -1,7 +1,6 @@
 (ns gorillalabs.eventsourcing.store.mongo-test
   (:require [clojure.test :refer :all]
             [juxt.iota :as i]
-            [gorillalabs.eventsourcing.core :refer :all]
             [gorillalabs.eventsourcing.listener :as listeners]
             [gorillalabs.eventsourcing.store.mongo :as mongo]
             [clj-time.core :as time :refer [now]]
