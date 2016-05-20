@@ -1,4 +1,4 @@
-(defproject gorillalabs/eventsourcing "0.1.0-SNAPSHOT"
+(defproject gorillalabs/eventsourcing "0.1.0"
   :description "A Clojure event-sourcing abstraction on configurable storage backends."
   :url "https://github.com/gorillalabs/eventsourcing"
   :license {:name "Eclipse Public License"
