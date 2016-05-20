@@ -2,7 +2,7 @@
   (:require [gorillalabs.eventsourcing.event :as event]
             [gorillalabs.commons :as commons]))
 
-(def ^{:dynamic true} *event-listeners* (atom {})) ;;; FIXME: Need to get rid of this dynamic atom to allow multiple processing units.
+;; (def ^{:dynamic true} *event-listeners* (atom {})) ;;; FIXME: Need to get rid of this dynamic atom to allow multiple processing units.
 
 
 (defn create-listener-dictionary
@@ -111,10 +111,3 @@ This function should be used for create events to create an initial aggregate."
   [event]
   {:uid (event/event-uid event) :created (event/event-datetime event)})
 
-
-
-(defmacro with-listeners
-  "Defines the event listeners for the given body."
-  [listeners & body]
-  `(binding [*event-listeners* ~listeners]
-     ~@body))

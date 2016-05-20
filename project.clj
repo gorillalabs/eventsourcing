@@ -33,8 +33,7 @@
                    :plugins      [[jonase/eastwood "0.2.3" :exclusions [org.clojure/clojure]]
                                   [lein-ancient "0.6.10" :exclusions [org.clojure/clojure]]
                                   [lein-pprint "1.1.1" :exclusions [org.clojure/clojure]]
-                                  [lein-figwheel "0.5.2" :exclusions [org.clojure/clojure]]
-                                  [lein-doo "0.1.6" :exclusions [org.clojure/clojure]]]}}
+                                  [lein-ns-dep-graph "0.1.0-SNAPSHOT"]]}}
   :release-tasks [["vcs" "assert-committed"]
                   ["change" "version" "leiningen.release/bump-version" "release"]
                   ["vcs" "commit"]

@@ -15,11 +15,11 @@
 
 (defn apply-events
   "Uses an event stream to perform a projection on an aggregate root."
-  ([aggregate events]
+  ([listeners aggregate events]
    (if (empty? events)
      aggregate
      (reduce (fn [root event]
-               (let [projection (reduce #(%2 event %1) root (listener/get-listeners listener/*event-listeners* (event/event-type event)))]
+               (let [projection (reduce #(%2 event %1) root (listener/get-listeners listeners (event/event-type event)))]
                  (if (associative? projection)
                    (-> projection
                        (commons/assoc-if :version (event/event-version event))
@@ -28,7 +28,7 @@
                      (with-meta projection
                                 (commons/assoc-if {} :version (event/event-version event) :lastModified (event/event-datetime event)))))))
              aggregate (if (sequential? events) events (list events)))))
-  ([aggregate event & events] (apply-events aggregate (cons event events))))
+  ([listeners aggregate event & events] (apply-events listeners aggregate (cons event events))))
 
 (defn current-version
   "Reads the current version for an aggregate."
@@ -58,7 +58,7 @@ the same aggregate (ID)."
         (warn e "An unexpected error occured while publishsing events.")))))
 
 (defn execute-publishing!
-  "This funktion does perform the publishing it self."
+  "This function does perform the publishing it self."
   [event dest]
   (if *asynchronous-publishing*
     (send-off event-publisher (perform-publishing-fn event dest)) ;call publishing fn via agent
@@ -71,14 +71,12 @@ of the events will be preserved but there is no guarantee about the order of not
 
 Note: At the moment there is no strong guarantee about the delivery of the events. So ig i.e. the system shuts down
 events may get lost."
-  ([events]
-   (publish-events! listener/*event-listeners* events))
-  ([listeners events]
-   (doseq [event events]
-     (let [type (event/event-type event)
-           dest (listener/get-listeners listeners type)]
-       (execute-publishing! event dest)))
-   events))
+  [listeners events]
+  (doseq [event events]
+    (let [type (event/event-type event)
+          dest (listener/get-listeners listeners type)]
+      (execute-publishing! event dest)))
+  events)
 
 (defn load-events
   "Loads events for a aggregate from the specified event store."

@@ -6,7 +6,7 @@
             [gorillalabs.commons :only (assoc-if as-str)])
   (:import (java.util UUID)))
 
-(deftype MemoryStore [store]
+(deftype MemoryStore [store listeners]
   store/EventStore
   (create-id [_]
     (UUID/randomUUID))
@@ -16,7 +16,7 @@
         (when-not (empty? vals) vals))))
   (load-aggregate-from [this uid options]
     (when uid
-      (core/apply-events nil (store/load-events-from this uid nil))))
+      (core/apply-events listeners nil (store/load-events-from this uid nil))))
   (select-events-from [_ query] nil)
   (version-from [this uid]
     (when uid
@@ -52,9 +52,9 @@
 
 (defn create-store
   "Creates a new emtpy store"
-  ([] (MemoryStore. (atom '())))
-  ([events] (MemoryStore. (atom (if (sequential? events) (apply list events) (list events)))))
-  ([event & events] (create-store (cons event events))))
+  ([listeners] (MemoryStore. (atom '()) listeners))
+  ([listeners events] (MemoryStore. (atom (if (sequential? events) (apply list events) (list events))) listeners))
+  ([listeners event & events] (create-store listeners (cons event events))))
 
 (defn all-events
   ([^MemoryStore store] @(.store store))

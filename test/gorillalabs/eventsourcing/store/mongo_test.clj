@@ -89,8 +89,7 @@
                                (is (= coll :test))
                                (is (= id uid))
                                3)}
-      #(i/given (listeners/with-listeners listeners
-                                          (mongo/store-events-into* :test 3 (list (event/new-event :deactivated uid {:reason "Just 4 fun."}))))
+      #(i/given (mongo/store-events-into* :test 3 (list (event/new-event :deactivated uid {:reason "Just 4 fun."})))
                 [0 :_v] := 4
                 [0 :uid] := uid
                 ; [0 :_d] := anything

@@ -9,25 +9,25 @@
             ))
 
 (deftest test-memory-store
-  (let [store (mem/create-store)
-        id (create-id store)
-        listeners (create-listener-dictionary)]
-    (with-listeners listeners
-                    (deflistener [event root :types :test :attach-to listeners]
-                                 (assoc root :foo (:foo event))
-                                 )
+  (let [listeners (create-listener-dictionary)
+        store (mem/create-store listeners)
+        id (create-id store)]
 
-                    (i/given (load-events store id)
-                             identity := nil)
+    (deflistener [event root :types :test :attach-to listeners]
+                 (assoc root :foo (:foo event))
+                 )
 
-                    (store-events store 0
-                                  (list
-                                    (new-event :test id {:foo "baz"})
-                                    (new-event :test id {:foo "bar"})))
+    (i/given (load-events store id)
+             identity := nil)
 
-                    (i/given (load-events store id)
-                             second :⊃ {:_v 2 :foo "bar"})
+    (store-events store 0
+                  (list
+                    (new-event :test id {:foo "baz"})
+                    (new-event :test id {:foo "bar"})))
 
-                    (i/given (load-aggregate store id)
-                             identity :⊃ {:version 2 :foo "bar"}))))
+    (i/given (load-events store id)
+             second :⊃ {:_v 2 :foo "bar"})
+
+    (i/given (load-aggregate store id)
+             identity :⊃ {:version 2 :foo "bar"})))
 
