@@ -149,8 +149,9 @@ only when there's a non-map at a particular level.
     )
   )
 
-(defn equals-ignore-case [^String a ^String b]
+(defn equals-ignore-case
   "Compares two strings ignoring the case"
+  [^String a ^String b]
   (if (nil? a)
     (nil? b)
     (.equalsIgnoreCase a b)
@@ -165,8 +166,10 @@ only when there's a non-map at a particular level.
 ;; -> {1 {:a 1, :b 1}, 2 {:a 2, :b 2}}
 
 
-(defn create-key [entry key]
-  "'Reduces' the entry (a map) to a key. If 'key' is an atom, the returned key is the value of that key in the map. If key is a sequence, the returned key is a map (and equals to select-keys.) For use in hash-by and related functions."
+(defn create-key
+  "'Reduces' the entry (a map) to a key. If 'key' is an atom, the returned key is the value of that key in the map.
+  If key is a sequence, the returned key is a map (and equals to select-keys.) For use in hash-by and related functions."
+  [entry key]
   (if (sequential? key)
     (select-keys entry key)
     (get entry key)))

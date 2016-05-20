@@ -1,8 +1,11 @@
-(ns gorillalabs.eventsourcing.memory-test
+(ns gorillalabs.eventsourcing.store.memory-test
   (:require [clojure.test :refer :all]
             [juxt.iota :as i]
             [gorillalabs.eventsourcing.core :refer :all]
-            [gorillalabs.eventsourcing.memory :as mem]
+            [gorillalabs.eventsourcing.event :refer :all]
+            [gorillalabs.eventsourcing.listener :refer :all]
+            [gorillalabs.eventsourcing.store :refer :all]
+            [gorillalabs.eventsourcing.store.memory :as mem]
             ))
 
 (deftest test-memory-store

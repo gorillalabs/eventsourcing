@@ -1,4 +1,4 @@
-(ns gorillalabs.eventsourcing.mongo
+(ns gorillalabs.eventsourcing.store.mongo
   (:require [clojure.tools.logging :refer :all]
             [clj-time.core :refer [now]]
             [clojure.string :refer [join]]
@@ -6,7 +6,9 @@
             [gorillalabs.commons :refer [assoc-if as-str]]
             [gorillalabs.eventsourcing.core :as core]
             [somnium.congomongo :as mg]
-            )
+            [gorillalabs.eventsourcing.listener :as listener]
+            [gorillalabs.eventsourcing.event :as event]
+            [gorillalabs.eventsourcing.store :as store])
   ; (:import [com.mongodb BasicDBObject])
   (:import (com.mongodb BasicDBObject)))
 
@@ -97,15 +99,15 @@
 
 (defn load-aggregate* [collection listeners uid store & {:keys [version]}]
   "Loads the aggregate for a certain ID."
-  (core/with-listeners listeners
-                       (let [^BasicDBObject order (BasicDBObject.)
+  (listener/with-listeners listeners
+                           (let [^BasicDBObject order (BasicDBObject.)
                              order (doto order (.append "_v" (Long. -1)) (.append "_n" (Long. 1)))
                              where {:uid uid}
                              where (if version (assoc where :_v {:$lte version}) where)
                              docs (mg/fetch collection :where where :sort order)
                              [snapshot events] (split-events-and-snapshot docs)
                              snapshot-version (:version snapshot)
-                             from-snapshot (core/snapshot-to-aggregate store snapshot-version)]
+                             from-snapshot (store/snapshot-to-aggregate store snapshot-version)]
                          (when-not from-snapshot (throw (IllegalStateException. (str "Unable to load snapshot for snapshot version '" snapshot-version "'."))))
                          (core/apply-events (from-snapshot (:snapshot snapshot)) events)
                          ))
@@ -114,16 +116,16 @@
 
 (defn- create-snapshot [collection aggregate store]
   "Function to create a snapshot from an aggregate in the database"
-  (let [uid (core/aggregate-id aggregate)
-        version (core/aggregate-version aggregate)]
+  (let [uid (event/aggregate-id aggregate)
+        version (event/aggregate-version aggregate)]
     (try
       (mg/insert! collection
                   {:uid      uid
                    :_v       version
                    :_n       :snp
                    :_d       (now)
-                   :version  (core/snapshot-format-version store)
-                   :snapshot (core/to-snapshot-format store aggregate)}
+                   :version  (store/snapshot-format-version store)
+                   :snapshot (store/to-snapshot-format store aggregate)}
                   :upsert? true)
       (catch com.mongodb.MongoException$DuplicateKey e
         (warn "Tried to write snapshot" version "for" uid "to" collection "but failed due to:" (.getMessage e)))
@@ -138,7 +140,7 @@
                   {:$match {:unsnapped true}}]
         pipeline (if since (cons {:$match {:_d {:$gte since}}} pipeline) pipeline)
         r (apply mg/aggregate collection pipeline)]
-    (core/with-listeners listeners
+    (listener/with-listeners listeners
                          (doseq [c (:result r)
                                  :let [uid (:_id c)
                                        max-snp (get c :max-snp 0)
@@ -146,13 +148,13 @@
                                  :when (and uid (> (max 0 (- max-vnt min-delta)) max-snp))
                                  ]
                            (let [events (load-events-from* collection uid)
-                                 aggregate (core/apply-events (core/empty-aggregate (first events)) events)]
+                                 aggregate (core/apply-events (listener/empty-aggregate (first events)) events)]
                              (create-snapshot collection aggregate store)
                              )))))
 
 
 (deftype MongoStore [collection database-fn listeners snapshot-version to-snapshot-fn from-snapshot-fn-map]
-  core/EventStore
+  store/EventStore
   (load-events-from [_ uid options]
     (mg/with-mongo (database-fn)
                    (when uid (apply load-events-from* collection uid options))))
@@ -161,7 +163,7 @@
                    (when uid (apply load-aggregate* collection listeners uid this options))))
   (select-events-from [_ query]
     (mg/with-mongo (database-fn)
-                   (when query (core/with-listeners listeners (select-events-from* collection query)))))
+                   (when query (listener/with-listeners listeners (select-events-from* collection query)))))
   (version-from [_ uid]
     (mg/with-mongo (database-fn) (when uid (version-from* collection uid))))
   (store-events-into [_ version events]
