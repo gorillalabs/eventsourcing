@@ -52,7 +52,7 @@
                   ::options (apply hash-map options))]
     [updated (rest all)]))
 
-(defn parse-options
+(defn- parse-options
   "Internal function to parse options."
   [[{name ::name options ::options :as result} body]]
   (let [types (:types options)
@@ -67,7 +67,7 @@
         )
     ))
 
-(defn parse-deflistener-args
+(defn- parse-deflistener-args
   "Parses the macro signature."
   [args]
   (-> args
@@ -82,13 +82,21 @@
   The listener may also manipulate an aggregate. The changed aggregate will be passed to other
   listeners in a chain e.g. in the apply-events function.
 
+  The listener may be attached to an atom of a list of listener dictionaries (by the way of `attach-to`) if you specify :attach-to <listener-list-atom>.
+  You can specify :types (either no types, a single type or a vector of types) to register the listener to. Listeners without types (or nil as typ) are registered to ::all.
+
   (deflistener [event :attach-to my-listeners] ...)
   (deflistener [event aggregate] ...)
-  (deflistener [event :type :activated] ...)
-  (deflistener my-listener [event aggregate :type [:activated]] ... )"
+  (deflistener [event :types :activated] ...)
+  (deflistener my-listener [event aggregate :types [:activated]] ... )"
   [& args]
-  (let [{listener-name# ::name event-bind# ::event-bind root-bind# ::aggregate-bind
-         types#         ::types attach# ::attach body# ::body} (parse-deflistener-args args)
+  (let [{listener-name# ::name
+         event-bind#    ::event-bind
+         root-bind#     ::aggregate-bind
+         types#         ::types
+         attach#        ::attach
+         body#          ::body} (parse-deflistener-args args)
+
         attach-body# (when attach# `((attach-to ~listener-name# ~@attach#)))
         [with-root-body# aggregate-name#] (if root-bind# [body# root-bind#]
                                                          (let [vnme (gensym "__aggregate_")] [`((do ~@body# ~vnme)) vnme]))
