@@ -103,12 +103,6 @@ will not be present in the new structure."
    (apply remove-nil (remove-nil map keys) more-keys)))
 
 
-(defn nilify
-  "Retuns the collection, if it is not empty, returns nil otherwise. (Nil-ifys an empty collection)"
-  [coll]
-  (when-not (empty? coll) coll))
-
-
 ; taken from map-utils in 1.2 contrib library
 (defn deep-merge-with
   "Like merge-with, but merges maps recursively, applying the given fn

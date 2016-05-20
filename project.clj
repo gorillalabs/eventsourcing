@@ -32,6 +32,7 @@
   :profiles {:dev {:dependencies [[org.clojure/tools.namespace "0.2.11"]]
                    :plugins      [[jonase/eastwood "0.2.3" :exclusions [org.clojure/clojure]]
                                   [lein-ancient "0.6.10" :exclusions [org.clojure/clojure]]
+                                  [lein-kibit "0.1.2"]
                                   [lein-pprint "1.1.1" :exclusions [org.clojure/clojure]]
                                   [lein-ns-dep-graph "0.1.0-SNAPSHOT"]]}}
   :release-tasks [["vcs" "assert-committed"]

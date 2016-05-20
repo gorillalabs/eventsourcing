@@ -13,7 +13,7 @@
   (load-events-from [_ uid options]
     (when uid
       (when-let [vals (filter #(= (event/event-uid %1) uid) @store)]
-        (when-not (empty? vals) vals))))
+        (seq vals))))
   (load-aggregate-from [this uid options]
     (when uid
       (core/apply-events listeners nil (store/load-events-from this uid nil))))
@@ -21,7 +21,7 @@
   (version-from [this uid]
     (when uid
       (let [v (event/event-version (first (reverse (store/load-events-from this uid nil))))]
-        (if v v 0))))
+        (or v 0))))
   (store-events-into [this version events]
     (let [ids (reduce (fn [r e] (conj r (:uid e))) #{} events)
           current (store/version-from this (first ids))]
