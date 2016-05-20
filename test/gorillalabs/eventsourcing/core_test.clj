@@ -1,4 +1,4 @@
-(ns eventsourcing.core-test
+(ns gorillalabs.eventsourcing.core-test
   (:require [clojure.test :refer :all]
             [juxt.iota :as i]
             [gorillalabs.eventsourcing.core :refer :all]
